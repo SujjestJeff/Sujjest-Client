@@ -1,0 +1,46 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "next",
+    "next/core-web-vitals",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 12,
+    "project": ["tsconfig.json"],
+    "sourceType": "module"
+  },
+  "plugins": ["react", "radious", "react-hooks", "@typescript-eslint", "testing-library", "import"],
+  "rules": {
+    "import/no-cycle": [2, { "maxDepth": 10, "ignoreExternal": true }],
+    "import/no-unresolved": 2,
+    "import/no-self-import": 2,
+    "no-case-declarations": 0,
+    "no-console": [1, { "allow": ["warn", "error"] }],
+    "react/no-children-prop": 0,
+    "react-hooks/exhaustive-deps": 1,
+    "@typescript-eslint/no-floating-promises": 1,
+    "@typescript-eslint/no-empty-interface": 0,
+    "@typescript-eslint/no-non-null-assertion": 0
+  },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)"],
+      "extends": ["plugin:testing-library/react"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": 0,
+        "@typescript-eslint/no-floating-promises": 0,
+        "testing-library/no-node-access": 0,
+        "react/display-name": 0
+      }
+    }
+  ]
+}
