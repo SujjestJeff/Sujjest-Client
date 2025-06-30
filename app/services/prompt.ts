@@ -88,7 +88,52 @@ export const voteOption = (promptId: string, optionId: string, userId: string): 
       if (option.votes.filter((v) => v === userId).length > 0) {
         option.votes = option.votes.filter((v) => v != userId)
       } else {
-        option.votes.push(optionId)
+        option.votes.push(userId)
+      }
+      resolve(prompt)
+    }, 500)
+  })
+}
+
+export const addNewOption = (
+  promptId: string,
+  userId: string,
+  optionName: string
+): Promise<Prompt> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      let prompt = getPrompt(promptId)
+      const newOption = {
+        id: 'option_' + optionName,
+        title: optionName,
+        createdBy: userId,
+        votes: [userId],
+      }
+      prompt.options.push(newOption)
+      resolve(prompt)
+    }, 500)
+  })
+}
+
+export const removeOption = (promptId: string, optionId: string): Promise<Prompt> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      let prompt = getPrompt(promptId)
+      const updatedOptions = prompt.options.filter((o) => o.id != optionId)
+      prompt.options = updatedOptions
+      resolve(prompt)
+    }, 500)
+  })
+}
+
+export const finishlineVote = (promptId: string, userId: string): Promise<Prompt> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      let prompt = getPrompt(promptId)
+      if (prompt.finishlineVotes.includes(userId)) {
+        prompt.finishlineVotes = prompt.finishlineVotes.filter((v) => v !== userId)
+      } else {
+        prompt.finishlineVotes.push(userId)
       }
       resolve(prompt)
     }, 500)

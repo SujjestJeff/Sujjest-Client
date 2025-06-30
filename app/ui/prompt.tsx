@@ -7,10 +7,15 @@ import React, { useState } from 'react'
 export type PromptProps = {
   currentUserID: string
   prompt: Prompt
+  onOptionVote: (promptID: string, optionID: string, currentUserID: string) => void
+  onAddOption: (promptID: string, userID: string, optionName: string) => void
+  onRemoveOption: (promptID: string, optionID: string) => void
+  onFinishlineVote: (promptID: string, userID: string) => void
 }
 
 export default function PromptComponent(props: PromptProps) {
-  const { currentUserID, prompt } = props
+  const { currentUserID, prompt, onOptionVote, onAddOption, onRemoveOption, onFinishlineVote } =
+    props
   const slotSize = 512 / prompt.users.length
   const [sujjestPrompt, setSujjestPrompt] = useState<Prompt>(prompt)
   const [addOptionVisible, setAddOptionVisible] = useState<boolean>(false)
@@ -39,45 +44,18 @@ export default function PromptComponent(props: PromptProps) {
   }
 
   const addNewOption = (optionName: string) => {
-    if (optionName === '') {
-      return
-    }
-    const newOption = {
-      id: 'option_' + optionName,
-      title: optionName,
-      createdBy: currentUserID,
-      votes: [currentUserID],
-    }
-    setSujjestPrompt((prompt) => ({
-      ...prompt,
-      options: [...prompt.options, newOption],
-    }))
+    onAddOption(sujjestPrompt.id, currentUserID, optionName)
   }
 
   const handleOptionClick = (optionID: string) => {
-    const option = sujjestPrompt.options.filter((o) => o.id === optionID)[0]
-    const hasVoted = option.votes.filter((v) => v === currentUserID).length > 0 ? true : false
-    const updatedOptions = sujjestPrompt.options.map((option) => {
-      if (option.id === optionID) {
-        if (hasVoted) {
-          const newVotes = option.votes.filter((v) => v != currentUserID)
-          if (newVotes.length == 0) {
-            // Removing last vote, pop modal
-            setOptionToRemove(option)
-            return option
-          } else {
-            return { ...option, votes: newVotes }
-          }
-        } else {
-          return { ...option, votes: [...option.votes, currentUserID] }
-        }
-      }
-      return option
-    })
-    setSujjestPrompt((prompt) => ({
-      ...prompt,
-      options: updatedOptions,
-    }))
+    const res = sujjestPrompt.options
+      .filter((o) => o.id === optionID)[0]
+      .votes.filter((v) => v != currentUserID)
+    if (res.length == 0) {
+      setOptionToRemove(sujjestPrompt.options.filter((o) => o.id === optionID)[0])
+    } else {
+      onOptionVote(sujjestPrompt.id, optionID, currentUserID)
+    }
   }
 
   const handleModalClose = () => {
@@ -88,26 +66,12 @@ export default function PromptComponent(props: PromptProps) {
     if (!optionToRemove) {
       return
     }
-    const updatedOptions = sujjestPrompt.options.filter((o) => o.id != optionToRemove.id)
-    setSujjestPrompt((prompt) => ({
-      ...prompt,
-      options: updatedOptions,
-    }))
-    setOptionToRemove()
+    onRemoveOption(sujjestPrompt.id, optionToRemove.id)
+    setOptionToRemove(undefined)
   }
 
   const handleFinishlineClick = () => {
-    if (sujjestPrompt.finishlineVotes.filter((u) => u === currentUserID).length > 0) {
-      setSujjestPrompt((sujjestPrompt) => ({
-        ...sujjestPrompt,
-        finishlineVotes: sujjestPrompt.finishlineVotes.filter((u) => u != currentUserID),
-      }))
-    } else {
-      setSujjestPrompt((sujjestPrompt) => ({
-        ...sujjestPrompt,
-        finishlineVotes: [...sujjestPrompt.finishlineVotes, currentUserID],
-      }))
-    }
+    onFinishlineVote(sujjestPrompt.id, currentUserID)
   }
 
   return (
